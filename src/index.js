@@ -86,13 +86,18 @@ export default {
 
       const result = await env.AI.run(MODEL, {
         messages: aiMessages,
-        max_completion_tokens: 160
+        max_completion_tokens: 160,
+        chat_template_kwargs: {
+          enable_thinking: false
+        }
       });
 
+      // Gemma 4 returns chat-completion output in choices[].message.content.
+      // Thinking is disabled above so the user-facing content is populated.
       const content =
-        result?.response ??
-        result?.result?.response ??
-        result?.choices?.[0]?.message?.content ??
+        result?.choices?.[0]?.message?.content?.trim() ||
+        result?.response?.trim() ||
+        result?.result?.response?.trim() ||
         "";
 
       if (!content) {
