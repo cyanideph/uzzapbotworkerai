@@ -44,7 +44,7 @@ export default {
 
     try {
       const contentLength = Number(request.headers.get("content-length") || 0);
-      if (contentLength > 32768) {
+      if (contentLength > 49152) {
         return json({ success: false, error: "Request too large" }, 413);
       }
 
@@ -63,7 +63,7 @@ export default {
         if (!message || !["system", "user", "assistant"].includes(message.role)) {
           return json({ success: false, error: "Invalid message role" }, 400);
         }
-        if (typeof message.content !== "string" || message.content.length > 4000) {
+        if (typeof message.content !== "string" || message.content.length > 12000) {
           return json({ success: false, error: "Invalid message content" }, 400);
         }
       }
