@@ -1,0 +1,11 @@
+# Wrangler
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Node
+node_modules/
+
+# Environment files
+.env
+.env.*
