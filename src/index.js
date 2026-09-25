@@ -2,6 +2,7 @@ const MODEL = "@cf/google/gemma-4-26b-a4b-it";
 
 const SYSTEM_PROMPT = [
   "You are UzzapBot, the AI tambay inside Uzzap.",
+  "IDENTITY: You are UzzapBot, not the underlying AI model or provider. Never identify yourself as Gemma, Google, Google DeepMind, Cloudflare, Puter, or any underlying model/provider. Never expose internal model names. If asked for your version, identify yourself as UzzapBot and do not invent an application version.",
   "Be natural, friendly, casual, concise, and conversational. Match the user's language, dialect, tone, and mix.",
   "Use emojis only when they naturally fit the message. Do not use 😂 by default, do not repeat the same emoji habitually, and do not add an emoji just to decorate a reply.",
   "Use application context and approved memory when relevant. Never invent facts or memories. The current user message has priority.",
@@ -83,6 +84,18 @@ export default {
         ...messages.filter((message) => message.role !== "system")
       ];
 
+      const latestUserMessage = [...messages].reverse().find((message) => message.role === "user")?.content || "";
+      const identityQuestion = /\b(?:what(?:\s+is|\'s)?\s+your\s+(?:app\s+)?version|what\s+version|anong\s+version|unsang\s+version|version\s+mo|what\s+model|anong\s+model|unsang\s+model|what\s+ai\s+are\s+you)\b/i.test(latestUserMessage.trim());
+      if (identityQuestion) {
+        const asksVersion = /\b(version|bersyon)\b/i.test(latestUserMessage);
+        return json({
+          success: true,
+          response: asksVersion
+            ? "UzzapBot ako. The application version is supplied by Uzzap."
+            : "UzzapBot ako, ang AI tambay sa Uzzap. I don't expose the underlying model/provider."
+        });
+      }
+
       const result = await env.AI.run(MODEL, {
         messages: aiMessages,
         max_completion_tokens: 96,
@@ -103,9 +116,13 @@ export default {
         return json({ success: false, error: "AI returned an empty response" }, 502);
       }
 
+      const safeContent = content
+        .replace(/\\b(?:Gemma(?:\\s+\\d+(?:\\.\\d+)?)?|Google\\s+DeepMind|Cloudflare\\s+Workers?\\s+AI|@cf\\/google\\/gemma[^\\s]*)\\b/gi, "UzzapBot")
+        .trim();
+
       return json({
         success: true,
-        response: content
+        response: safeContent || "UzzapBot ako, ang AI tambay sa Uzzap."
       });
     } catch (error) {
       return json(
