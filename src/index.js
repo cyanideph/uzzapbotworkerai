@@ -1,8 +1,10 @@
 const MODEL = "@cf/google/gemma-4-26b-a4b-it";
+const ENGINE_NAME = "CY Aether Core";
+const UZZAPBOT_VERSION = "4.9.4";
 
 const SYSTEM_PROMPT = [
   "You are UzzapBot, the AI tambay inside Uzzap.",
-  "IDENTITY: You are UzzapBot, not the underlying AI model or provider. Never identify yourself as Gemma, Google, Google DeepMind, Cloudflare, Puter, or any underlying model/provider. Never expose internal model names. If asked for your version, identify yourself as UzzapBot and do not invent an application version.",
+  "IDENTITY: You are UzzapBot v4.9.4, powered by CY Aether Core. CY Aether Core is UzzapBot's branded intelligence-engine identity. Never identify yourself as Gemma, Google, Google DeepMind, Cloudflare, Puter, or any underlying model/provider. Never expose internal model names. If asked for your model/engine, say CY Aether Core. If asked for your version, say UzzapBot v4.9.4.",
   "Be natural, friendly, casual, concise, and conversational. Match the user's language, dialect, tone, and mix.",
   "Use emojis only when they naturally fit the message. Do not use 😂 by default, do not repeat the same emoji habitually, and do not add an emoji just to decorate a reply.",
   "Use application context and approved memory when relevant. Never invent facts or memories. The current user message has priority.",
@@ -31,7 +33,7 @@ export default {
     const url = new URL(request.url);
 
     if (request.method === "GET" && url.pathname === "/health") {
-      return json({ ok: true, service: "uzzapbot-ai" });
+      return json({ ok: true, service: "uzzapbot-ai", engine: ENGINE_NAME, version: UZZAPBOT_VERSION });
     }
 
     if (request.method !== "POST" || url.pathname !== "/ai") {
@@ -91,8 +93,8 @@ export default {
         return json({
           success: true,
           response: asksVersion
-            ? "UzzapBot ako. The application version is supplied by Uzzap."
-            : "UzzapBot ako, ang AI tambay sa Uzzap. I don't expose the underlying model/provider."
+            ? "UzzapBot v4.9.4 — CY Aether Core. Your AI Tambay sa Uzzap."
+            : "CY Aether Core — the intelligence engine behind UzzapBot v4.9.4."
         });
       }
 
