@@ -120,6 +120,7 @@ export default {
 
       const safeContent = content
         .replace(/\\b(?:Gemma(?:\\s+\\d+(?:\\.\\d+)?)?|Google\\s+DeepMind|Cloudflare\\s+Workers?\\s+AI|@cf\\/google\\/gemma[^\\s]*)\\b/gi, "UzzapBot")
+        .replace(/\\[c10\\]/gi, "")
         .trim();
 
       return json({
