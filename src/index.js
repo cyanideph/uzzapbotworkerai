@@ -43,9 +43,6 @@ export default {
       if (!content) return json({ success: false, error: "AI returned an empty response" }, 502);
       const safeContent = content
         .replace(/\b(?:Gemma(?:\s+\d+(?:\.\d+)?)?|Google\s+DeepMind|Cloudflare\s+Workers?\s+AI|@cf\/google\/gemma[^\s]*)\b/gi, "UzzapBot")
-        .replace(/\[c(?:0[1-9]|[12][0-9]|30)\]/gi, "")
-        .replace(/\[c[^\]]+\]/gi, "")
-        .replace(/\[\/c[^\]]*\]/gi, "")
         .trim();
       return json({ success: true, response: safeContent || "UzzapBot ako, ang AI tambay sa Uzzap." });
     } catch (error) { return json({ success: false, error: error instanceof Error ? error.message : String(error) }, 500); }
