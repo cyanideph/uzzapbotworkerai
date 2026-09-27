@@ -1,6 +1,6 @@
 const MODEL = "@cf/google/gemma-4-26b-a4b-it";
 const ENGINE_NAME = "CY Aether Core";
-const UZZAPBOT_VERSION = "4.9.4";
+const UZZAPBOT_VERSION = "4.9.6";
 
 const SYSTEM_PROMPT = [
   "You are the AI gateway for UzzapBot.",
@@ -36,7 +36,7 @@ export default {
       const identityQuestion = /\b(?:what(?:\s+is|\'s)?\s+your\s+(?:app\s+)?version|what\s+version|anong\s+version|unsang\s+version|version\s+mo|what\s+model|anong\s+model|unsang\s+model|what\s+ai\s+are\s+you)\b/i.test(latestUserMessage.trim());
       if (identityQuestion) {
         const asksVersion = /\b(version|bersyon)\b/i.test(latestUserMessage);
-        return json({ success: true, response: asksVersion ? "UzzapBot v4.9.4 — CY Aether Core. Your AI Tambay sa Uzzap." : "CY Aether Core — the intelligence engine behind UzzapBot v4.9.4." });
+        return json({ success: true, response: asksVersion ? "UzzapBot v4.9.6 — CY Aether Core. Your AI Tambay sa Uzzap." : "CY Aether Core — the intelligence engine behind UzzapBot v4.9.6." });
       }
       const result = await env.AI.run(MODEL, { messages: aiMessages, max_completion_tokens: 96, chat_template_kwargs: { enable_thinking: false } });
       const content = result?.choices?.[0]?.message?.content?.trim() || result?.response?.trim() || result?.result?.response?.trim() || "";
