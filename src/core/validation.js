@@ -23,7 +23,11 @@ export async function parseAiRequest(request) {
     if (!message || !["system", "user", "assistant"].includes(message.role)) {
       return { error: "Invalid message role", status: 400 };
     }
-    if (typeof message.content !== "string" || message.content.length > 12000) {
+    if (
+      typeof message.content !== "string" ||
+      message.content.trim().length === 0 ||
+      message.content.length > 12000
+    ) {
       return { error: "Invalid message content", status: 400 };
     }
   }
