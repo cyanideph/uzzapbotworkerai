@@ -1,28 +1,54 @@
 # UzzapBot AI Worker
 
-Cloudflare Workers AI endpoint for UzzapBot.
+Cloudflare Workers AI gateway for UzzapBot.
 
-## Endpoints
+## API
 
-- `GET /health` — deployment health check.
-- `POST /ai` — accepts `{"messages":[...]}` and returns `{"success":true,"response":"..." }`.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/health` | Lightweight deployment health check |
+| GET | `/info` | Service, engine, version, model, and API metadata |
+| GET | `/version` | Machine-readable version/engine identity |
+| GET | `/capabilities` | Supported endpoints and gateway features |
+| POST | `/ai` | AI chat generation |
 
-## Cloudflare Workers Builds
+Unknown routes return HTTP 404.
 
-Use the `main` branch and the repository root.
+## Architecture
 
-- Build command: leave empty
-- Deploy command: `npx wrangler deploy`
-- Root directory: leave empty
-- Worker name: `uzzapbot-ai`
+```
+UzzapAndroid
+    ↓
+Supabase UzzapBot Edge Function
+    ↓
+Cloudflare Worker /ai
+    ↓
+Workers AI
+```
 
-The Worker configuration is in `wrangler.jsonc`.
+The Supabase Edge Function remains responsible for Uzzap-specific orchestration such as room context, language/dialect selection, memory, games, personality, and AI admission. This Worker is the AI gateway/model execution layer.
+
+## Repository layout
+
+```
+src/
+├── index.js
+├── core/
+│   ├── auth.js
+│   ├── config.js
+│   ├── response.js
+│   └── validation.js
+└── routes/
+    ├── ai.js
+    ├── health.js
+    └── info.js
+```
 
 ## AI behavior
 
-The Worker adds the UzzapBot personality server-side so clients do not need to send the personality prompt on every request. It follows Bisaya/Cebuano, Waray, Tagalog, English, and Taglish and keeps normal chat replies concise.
+The Worker supplies a small gateway-level system prompt. Application-supplied system instructions remain authoritative for UzzapBot personality, language, conversation behavior, memory, and Uzzap features.
 
-Gemma 4 output is capped at 160 completion tokens to prevent unnecessarily long replies.
+AI generation is capped at 96 completion tokens. Identity/version questions are answered without an AI generation request.
 
 ## Authentication
 
@@ -32,14 +58,28 @@ When the secret exists, `POST /ai` requires:
 
 `Authorization: Bearer <secret>`
 
-The Worker intentionally remains usable before the secret is created so the Cloudflare deployment can be tested first.
+If the secret is absent, the Worker remains callable so deployment testing can be performed before the secret is configured.
 
-## Supabase integration
+## Validation
 
-Keep deterministic Uzzap game commands in the Supabase UzzapBot/game logic. Only normal AI chat should call this Worker.
+`POST /ai` validates:
 
-Recommended flow:
-
-`Supabase UzzapBot Edge Function → Cloudflare Worker /ai → Workers AI → response`
+- JSON body
+- required `messages` array
+- maximum 20 messages
+- allowed roles: `system`, `user`, `assistant`
+- maximum 12,000 characters per message
+- maximum 49,152-byte request body when Content-Length is supplied
 
 Do not put Cloudflare secrets, API keys, or `.dev.vars` files in this repository.
+
+## Deployment
+
+Use the `main` branch and repository root.
+
+- Build command: leave empty
+- Deploy command: `npx wrangler deploy`
+- Root directory: leave empty
+- Worker name: `uzzapbot-ai`
+
+Configuration is in `wrangler.jsonc`.
